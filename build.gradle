@@ -1,0 +1,53 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group 'org.hello'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'org.testng', name: 'testng', version: '7.0.0'
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+    compile group: 'io.appium', name: 'java-client', version: '7.3.0'
+    compile group: 'log4j', name: 'log4j', version: '1.2.17'
+    compile group: 'com.relevantcodes', name: 'extentreports', version: '2.41.2'
+}
+
+test {
+    useTestNG()
+    testLogging.showStandardStreams = true
+}
+
+task runTests(type: Test) {
+    useTestNG {
+        useDefaultListeners = false
+        listeners << 'org.uncommons.reportng.HTMLReporter'
+        listeners << 'extentreports.ExtentReportListner'
+        includeGroups System.getProperty('tag', 'NONE')
+        outputDirectory = file("$buildDir/" + System.getProperty('tag', 'NONE'))
+    }
+}
+
+install {
+    repositories {
+        mavenInstaller {
+            pom.version = '1.0-SNAPSHOT'
+            pom.groupId = 'org.hello'
+            pom.artifactId = 'sopytest'
+            pom.project {
+                inceptionYear '2020'
+                licenses {
+                    license {
+                        name 'hello'
+                        url 'sofy.netlify.app'
+                        distribution 'repo'
+                    }
+                }
+            }
+            pom.writeTo("${mavenPomDir}/${project.group}/${project.name}/pom.xml")
+        }
+    }
+}
